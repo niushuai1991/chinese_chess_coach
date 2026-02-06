@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中国象棋AI教练</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>中国象棋AI教练</h1>
+            <p class="subtitle">与AI对弈，学习象棋策略</p>
+        </header>
+
+        <div class="game-area">
+            <!-- 控制面板 -->
+            <div class="control-panel">
+                <button id="newGameBtn" class="btn btn-primary">新游戏</button>
+                <button id="undoBtn" class="btn btn-secondary" disabled>悔棋</button>
+                <select id="colorSelect" class="select">
+                    <option value="red">执红先行</option>
+                    <option value="black">执黑后行</option>
+                </select>
+            </div>
+
+            <!-- 游戏状态 -->
+            <div class="status-bar">
+                <span id="gameStatus" class="status">准备开始</span>
+                <span id="turnIndicator" class="turn"></span>
+            </div>
+
+            <!-- 棋盘 -->
+            <div id="chessboard" class="chessboard">
+                <!-- 棋盘格子由JS生成 -->
+            </div>
+
+            <!-- AI解释 -->
+            <div class="explanation-panel">
+                <h3>AI解说</h3>
+                <div id="explanation" class="explanation">
+                    点击"新游戏"开始对弈
+                </div>
+            </div>
+        </div>
+
+        <!-- 历史记录 -->
+        <div class="history-panel">
+            <h3>对局记录</h3>
+            <div id="moveHistory" class="history">
+                <!-- 历史记录由JS生成 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/board.js"></script>
+    <script src="/static/js/game.js"></script>
+    <script src="/static/js/ai.js"></script>
+</body>
+</html>
