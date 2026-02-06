@@ -2,6 +2,7 @@
 
 import uuid
 
+from backend.game.rules import XiangqiRules
 from backend.models.schemas import GameState, Move, Piece, PieceType, PlayerColor, Position
 
 
@@ -162,22 +163,17 @@ class GameManager:
         return board
 
     def _is_valid_move(self, game: GameState, from_pos: Position, to_pos: Position) -> bool:
-        """验证棋步合法性（简化版）"""
-        piece = game.board[from_pos.row][from_pos.col]
-        if not piece:
-            return False
-
-        # 简化验证：实际需要完整的象棋规则
-        return True
+        """验证棋步合法性"""
+        return XiangqiRules.validate_move(game.board, from_pos, to_pos)
 
     def _is_in_check(self, game: GameState) -> bool:
-        """检查是否将军（简化版）"""
-        return False
+        """检查是否将军"""
+        return XiangqiRules.is_in_check(game.board, game.current_player)
 
     def _is_checkmate(self, game: GameState) -> bool:
-        """检查是否将死（简化版）"""
-        return False
+        """检查是否将死"""
+        return XiangqiRules.is_checkmate(game.board, game.current_player)
 
     def _is_stalemate(self, game: GameState) -> bool:
-        """检查是否和棋（简化版）"""
-        return False
+        """检查是否困毙"""
+        return XiangqiRules.is_stalemate(game.board, game.current_player)
