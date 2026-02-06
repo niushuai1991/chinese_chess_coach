@@ -48,24 +48,32 @@ class ChessBoard {
     }
 
     drawBoardLines(board) {
-        // 横线 - 10条横线
-        for (let i = 0; i < 10; i++) {
+        // 横线 - 11条横线（包括顶边和底边）
+        for (let i = 0; i < 11; i++) {
             const line = document.createElement("div");
             line.className = "h-line";
             line.style.top = `${i * 50 + 25}px`;
             board.appendChild(line);
         }
         
-        // 黑方竖线（上半部分，第0-4行）
-        for (let i = 0; i < 9; i++) {
+        // 边线竖线（第0列和第8列，贯通楚河汉界）
+        [0, 8].forEach(i => {
+            const line = document.createElement("div");
+            line.className = "v-line-full";
+            line.style.left = `${i * 50 + 25}px`;
+            board.appendChild(line);
+        });
+
+        // 黑方竖线（上半部分，第1-7列，第0-4行）
+        for (let i = 1; i < 8; i++) {
             const line = document.createElement("div");
             line.className = "v-line-top";
             line.style.left = `${i * 50 + 25}px`;
             board.appendChild(line);
         }
-        
-        // 红方竖线（下半部分，第5-9行）
-        for (let i = 0; i < 9; i++) {
+
+        // 红方竖线（下半部分，第1-7列，第5-9行）
+        for (let i = 1; i < 8; i++) {
             const line = document.createElement("div");
             line.className = "v-line-bottom";
             line.style.left = `${i * 50 + 25}px`;

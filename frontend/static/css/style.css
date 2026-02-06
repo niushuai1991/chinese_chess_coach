@@ -171,9 +171,20 @@ header h1 {
     position: absolute;
     top: 275px;
     width: 1px;
-    height: 225px;
+    height: 250px;
     background: #8b4513;
     pointer-events: none;
+}
+
+/* 完整竖线（第0列和第8列，贯通楚河汉界） */
+.v-line-full {
+    position: absolute;
+    top: 25px;
+    width: 1px;
+    height: 500px;
+    background: #8b4513;
+    pointer-events: none;
+    z-index: 2;
 }
 
 /* 九宫格斜线 */
