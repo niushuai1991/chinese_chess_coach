@@ -3,14 +3,15 @@
 import os
 
 from dotenv import load_dotenv
+
+# 加载环境变量（必须在导入其他模块之前）
+load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from backend.api import ai, game
-
-# 加载环境变量
-load_dotenv()
 
 app = FastAPI(title="中国象棋AI教练", description="与AI对弈并学习象棋策略", version="0.1.0")
 
