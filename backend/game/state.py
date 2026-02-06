@@ -80,10 +80,11 @@ class GameManager:
             PlayerColor.BLACK if game.current_player == PlayerColor.RED else PlayerColor.RED
         )
 
-        # 检查将军和将死
-        game.is_check = self._is_in_check(game)
-        game.is_checkmate = game.is_check and self._is_checkmate(game)
-        game.is_stalemate = not game.is_check and self._is_stalemate(game)
+        # 检查将军和将死（检查对手是否被将军）
+        opponent = PlayerColor.BLACK if game.current_player == PlayerColor.RED else PlayerColor.RED
+        game.is_check = XiangqiRules.is_in_check(game.board, opponent)
+        game.is_checkmate = game.is_check and XiangqiRules.is_checkmate(game.board, opponent)
+        game.is_stalemate = not game.is_check and XiangqiRules.is_stalemate(game.board, opponent)
 
         return game
 

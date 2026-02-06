@@ -80,19 +80,66 @@ class AIEngine:
             raise Exception("AI生成棋步失败，请重试")
 
     def _board_to_fen(self, board: list) -> str:
-        """将棋盘转换为FEN格式（简化版）"""
-        # 实际实现需要完整的中国象棋FEN转换
-        return "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
+        """将棋盘转换为FEN格式"""
+        rows = []
+        for row in board:
+            row_str = ""
+            empty_count = 0
+            for piece in row:
+                if piece is None:
+                    empty_count += 1
+                else:
+                    if empty_count > 0:
+                        row_str += str(empty_count)
+                        empty_count = 0
+
+                    char = piece.type.value
+                    if piece.color.value == "red":
+                        char = char.upper()
+                    row_str += char
+
+            if empty_count > 0:
+                row_str += str(empty_count)
+
+            rows.append(row_str)
+
+        return "/".join(rows)
 
     def _parse_ai_move(self, move_str: str) -> dict:
         """解析AI返回的棋步
 
         Args:
-            move_str: 棋步字符串，如"炮二平五"
+            move_str: 棋步字符串，支持格式：
+                - 坐标格式: "(3,4)->(5,4)" 或 "(3,4)-(5,4)"
+                - JSON格式: '{"from": {"row": 3, "col": 4}, "to": {"row": 5, "col": 4}}'
 
         Returns:
             包含from_pos和to_pos的字典
         """
-        # 解析中国象棋记谱法
-        # 实际实现需要完整解析逻辑
-        return {"from_pos": {"row": 7, "col": 1}, "to_pos": {"row": 4, "col": 4}}
+        from backend.models.schemas import Position
+
+        try:
+            # 尝试解析 JSON 格式
+            if "{" in move_str:
+                data = json.loads(move_str)
+                if "from" in data and "to" in data:
+                    return {
+                        "from_pos": Position(**data["from"]),
+                        "to_pos": Position(**data["to"]),
+                    }
+
+            # 尝试解析坐标格式 "(row,col)->(row,col)"
+            import re
+
+            match = re.match(r"\((\d+),(\d+)\)->\((\d+),(\d+)\)", move_str.strip())
+            if match:
+                return {
+                    "from_pos": Position(row=int(match.group(1)), col=int(match.group(2))),
+                    "to_pos": Position(row=int(match.group(3)), col=int(match.group(4))),
+                }
+
+            raise ValueError(f"无法解析棋步: {move_str}")
+
+        except Exception as e:
+            logger.error(f"解析棋步失败: {move_str}, 错误: {e}")
+            raise ValueError(f"无效的棋步格式: {move_str}")
