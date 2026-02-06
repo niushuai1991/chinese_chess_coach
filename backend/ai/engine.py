@@ -15,12 +15,12 @@ logger = logging.getLogger(__name__)
 class AIEngine:
     """AI对弈引擎"""
 
-    def __init__(self) -> None:
+    def __init__(self, game_manager=None) -> None:
         self.client = OpenAI(
             api_key=os.getenv("OPENAI_API_KEY"), base_url=os.getenv("OPENAI_BASE_URL")
         )
         self.model = os.getenv("MODEL_NAME", "gpt-4")
-        self.game_manager = GameManager()
+        self.game_manager = game_manager or GameManager()
         self.timeout = int(os.getenv("THINKING_TIMEOUT", "30"))
 
     async def make_move_with_explanation(self, session_id: str) -> dict:

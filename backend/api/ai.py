@@ -3,10 +3,11 @@
 from fastapi import APIRouter, HTTPException
 
 from backend.ai.engine import AIEngine
+from backend.api.game import game_manager
 from backend.models.schemas import AIMoveRequest, AIMoveResponse
 
 router = APIRouter()
-ai_engine = AIEngine()
+ai_engine = AIEngine(game_manager=game_manager)
 
 
 @router.post("/move", response_model=AIMoveResponse)
