@@ -54,7 +54,7 @@ class AIEngine:
 
         # 调用AI
         try:
-            logger.info(f"   正在调用 {self.model} API...")
+            logger.info(f"   正在调用 {self.model} API... (超时: {self.timeout}秒)")
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
@@ -68,6 +68,7 @@ class AIEngine:
                 ],
                 temperature=0.7,
                 response_format={"type": "json_object"},
+                timeout=self.timeout,
             )
 
             content = response.choices[0].message.content
@@ -88,10 +89,11 @@ class AIEngine:
 
             return {"move": move, "explanation": result["explanation"], "game_state": new_state}
 
-        except Exception:
-            logger.exception("❌ AI生成棋步失败")
-            print("❌ AI生成棋步失败")
-            raise Exception("AI生成棋步失败，请重试")
+        except Exception as e:
+            logger.exception(f"❌ AI生成棋步失败: {str(e)}")
+            print(f"❌ AI生成棋步失败: {str(e)}")
+            print(f"   错误类型: {type(e).__name__}")
+            raise Exception(f"AI生成棋步失败: {str(e)}")
 
     def _board_to_fen(self, board: list) -> str:
         """将棋盘转换为FEN格式"""
