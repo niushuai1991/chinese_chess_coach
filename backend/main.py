@@ -1,5 +1,6 @@
 """中国象棋教练 - 后端应用"""
 
+import logging
 import os
 
 from dotenv import load_dotenv
@@ -12,6 +13,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from backend.api import ai, game
+
+# 配置日志
+os.makedirs("logs", exist_ok=True)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.StreamHandler(),  # 输出到控制台
+        logging.FileHandler("logs/xiangqi.log", encoding="utf-8"),  # 输出到文件
+    ],
+)
+
+logger = logging.getLogger(__name__)
+logger.info("🚀 中国象棋AI教练服务启动中...")
 
 app = FastAPI(title="中国象棋AI教练", description="与AI对弈并学习象棋策略", version="0.1.0")
 

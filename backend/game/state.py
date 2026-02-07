@@ -1,9 +1,12 @@
 """游戏状态管理"""
 
+import logging
 import uuid
 
 from backend.game.rules import XiangqiRules
 from backend.models.schemas import GameState, Move, Piece, PieceType, PlayerColor, Position
+
+logger = logging.getLogger(__name__)
 
 
 class GameManager:
@@ -68,6 +71,22 @@ class GameManager:
 
         captured = game.board[to_pos.row][to_pos.col]
 
+        # 打印走棋信息
+        player = "红方" if piece.color.value == "red" else "黑方"
+        piece_name = self._get_piece_name(piece.type.value, piece.color.value)
+        capture_info = (
+            f" 吃掉 {self._get_piece_name(captured.type.value, captured.color.value)}"
+            if captured
+            else ""
+        )
+
+        logger.info(
+            f"🎮 {player}走棋: {piece_name} ({from_pos.row},{from_pos.col}) -> ({to_pos.row},{to_pos.col}){capture_info}"
+        )
+        print(
+            f"🎮 {player}走棋: {piece_name} ({from_pos.row},{from_pos.col}) -> ({to_pos.row},{to_pos.col}){capture_info}"
+        )
+
         move = Move(from_pos=from_pos, to_pos=to_pos, piece=piece, captured=captured)
 
         # 更新棋盘
@@ -86,7 +105,32 @@ class GameManager:
         game.is_checkmate = game.is_check and XiangqiRules.is_checkmate(game.board, opponent)
         game.is_stalemate = not game.is_check and XiangqiRules.is_stalemate(game.board, opponent)
 
+        # 打印对局状态
+        move_count = len(game.move_history)
+        logger.info(
+            f"📊 第{move_count}步完成 | 当前轮到: {'红方' if game.current_player.value == 'red' else '黑方'}"
+        )
+        if game.is_check:
+            logger.warning(f"⚠️  将军！")
+        if game.is_checkmate:
+            logger.error(f"💀 将死！游戏结束")
+        if game.is_stalemate:
+            logger.info(f"🤝 困毙！和棋")
+
         return game
+
+    def _get_piece_name(self, piece_type: str, color: str) -> str:
+        """获取棋子中文名称"""
+        names = {
+            "k": "将" if color == "black" else "帅",
+            "a": "士" if color == "black" else "仕",
+            "e": "象" if color == "black" else "相",
+            "h": "马",
+            "r": "车",
+            "c": "炮",
+            "p": "卒" if color == "black" else "兵",
+        }
+        return names.get(piece_type, piece_type)
 
     def undo_moves(self, session_id: str, moves: int) -> GameState:
         """悔棋

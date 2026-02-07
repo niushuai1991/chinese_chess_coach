@@ -46,8 +46,15 @@ class AIEngine:
         # 获取棋盘表示
         board_fen = self._board_to_fen(game_state.board)
 
+        ai_player = "红方" if game_state.current_player.value == "red" else "黑方"
+        logger.info(f"🤖 {ai_player}AI正在思考...")
+        print(f"\n{'=' * 60}")
+        print(f"🤖 {ai_player}AI正在思考...")
+        print(f"   棋盘FEN: {board_fen}")
+
         # 调用AI
         try:
+            logger.info(f"   正在调用 {self.model} API...")
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
@@ -67,7 +74,13 @@ class AIEngine:
             if not content:
                 raise Exception("AI返回空内容")
 
+            logger.info(f"   AI原始响应: {content}")
+
             result = json.loads(content)
+            logger.info(f"✅ AI决定走: {result['move']}")
+            print(f"✅ AI决定走: {result['move']}")
+            print(f"💭 AI解释: {result['explanation']}")
+            print(f"{'=' * 60}\n")
 
             # 执行AI的棋步
             move = self._parse_ai_move(result["move"])
@@ -76,7 +89,8 @@ class AIEngine:
             return {"move": move, "explanation": result["explanation"], "game_state": new_state}
 
         except Exception:
-            logger.exception("AI生成棋步失败")
+            logger.exception("❌ AI生成棋步失败")
+            print("❌ AI生成棋步失败")
             raise Exception("AI生成棋步失败，请重试")
 
     def _board_to_fen(self, board: list) -> str:
