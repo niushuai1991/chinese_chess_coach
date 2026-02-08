@@ -48,8 +48,8 @@ class ChessBoard {
     }
 
     drawBoardLines(board) {
-        // 横线 - 11条横线（包括顶边和底边）
-        for (let i = 0; i < 11; i++) {
+        // 横线 - 10条横线
+        for (let i = 0; i < 10; i++) {
             const line = document.createElement("div");
             line.className = "h-line";
             line.style.top = `${i * 50 + 25}px`;

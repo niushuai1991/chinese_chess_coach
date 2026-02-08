@@ -142,7 +142,7 @@ header h1 {
 .board {
     position: relative;
     width: 450px;
-    height: 525px;
+    height: 500px;
     background: #f4d03f;
 }
 
@@ -171,7 +171,7 @@ header h1 {
     position: absolute;
     top: 275px;
     width: 1px;
-    height: 250px;
+    height: 200px;
     background: #8b4513;
     pointer-events: none;
 }
@@ -181,7 +181,7 @@ header h1 {
     position: absolute;
     top: 25px;
     width: 1px;
-    height: 500px;
+    height: 450px;
     background: #8b4513;
     pointer-events: none;
     z-index: 2;
