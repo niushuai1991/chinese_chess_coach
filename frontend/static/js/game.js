@@ -91,6 +91,9 @@ class ChessGame {
                     this.updateUI();
                     document.getElementById("undoBtn").disabled = false;
 
+                    // 显示玩家下棋提示
+                    this.updateExplanation("你已下棋，正在等待AI回应...");
+
                     // AI回合
                     this.isPlayerTurn = false;
                     setTimeout(() => this.makeAIMove(), 500);
@@ -129,6 +132,9 @@ class ChessGame {
             if (data.success) {
                 this.gameState = data.game_state;
                 this.updateUI();
+
+                // 更新AI解说面板
+                this.updateExplanation(data.explanation);
 
                 // 添加AI解释到历史
                 this.addHistoryItem(data.move, data.explanation);
@@ -214,6 +220,13 @@ class ChessGame {
 
     showStatus(message) {
         document.getElementById("gameStatus").textContent = message;
+    }
+
+    updateExplanation(explanation) {
+        const explanationDiv = document.getElementById("explanation");
+        if (explanationDiv) {
+            explanationDiv.textContent = explanation;
+        }
     }
 
     showError(message) {
