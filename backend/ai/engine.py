@@ -173,6 +173,9 @@ class AIEngine:
 
             # 执行AI的棋步
             parsed_move = self._parse_ai_move(result["move"])
+            logger.info(
+                f"   尝试执行棋步: {parsed_move['from_pos'].dict()} -> {parsed_move['to_pos'].dict()}"
+            )
             new_state = self.game_manager.make_move(
                 session_id, parsed_move["from_pos"], parsed_move["to_pos"]
             )

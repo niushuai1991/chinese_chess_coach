@@ -62,7 +62,14 @@ class GameManager:
 
         # 验证棋步合法性
         if not self._is_valid_move(game, from_pos, to_pos):
-            raise ValueError("无效的棋步")
+            # 获取起始位置的棋子信息，用于调试
+            piece = game.board[from_pos.row][from_pos.col]
+            piece_info = f"{piece.color.value} {piece.type.value}" if piece else "空"
+            raise ValueError(
+                f"无效的棋步: {from_pos.dict()} -> {to_pos.dict()}, "
+                f"起始位置棋子: {piece_info}, "
+                f"当前玩家: {game.current_player.value}"
+            )
 
         # 执行棋步
         piece = game.board[from_pos.row][from_pos.col]
