@@ -170,8 +170,6 @@ class AIEngine:
             except json.JSONDecodeError as e:
                 logger.error(f"   ❌ JSON解析失败: {e}")
                 raise
-            logger.info(f"✅ AI决定走: {result['move']}")
-            print(f"✅ AI决定走: {result['move']}")
             print(f"💭 AI解释: {result['explanation']}")
             print(f"{'=' * 60}\n")
 
@@ -187,6 +185,12 @@ class AIEngine:
             logger.info(
                 f"   返回的 Move 对象包含: {complete_move.dict() if complete_move else None}"
             )
+
+            # 打印详细的走棋信息
+            if complete_move and complete_move.piece:
+                piece_name = self._get_piece_name(complete_move.piece)
+                logger.info(f"✅ AI决定走: {result['move']} (棋子: {piece_name})")
+                print(f"✅ AI决定走: {result['move']} (棋子: {piece_name})")
 
             return {
                 "move": complete_move,
@@ -257,6 +261,17 @@ class AIEngine:
                     pieces.append(f"{piece_name}({row},{col})")
 
         return ", ".join(pieces) if pieces else "无棋子"
+
+    def _get_piece_name(self, piece: Piece) -> str:
+        """获取棋子的中文名称
+
+        Args:
+            piece: 棋子对象
+
+        Returns:
+            棋子的中文名称，如"将"、"帅"、"马"等
+        """
+        return self._piece_names.get((piece.type, piece.color), "棋子")
 
     def _parse_ai_move(self, move_str: str) -> dict:
         """解析AI返回的棋步
