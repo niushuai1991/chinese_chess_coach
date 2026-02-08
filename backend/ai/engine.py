@@ -3,6 +3,7 @@
 import json
 import logging
 import os
+import time
 
 from openai import OpenAI
 
@@ -54,28 +55,65 @@ class AIEngine:
 
         # 调用AI
         try:
-            logger.info(f"   正在调用 {self.model} API... (超时: {self.timeout}秒)")
+            # 构建请求消息
+            user_message = (
+                f"当前棋局（FEN）: {board_fen}\n"
+                f"当前执子: {'红方' if game_state.current_player == 'red' else '黑方'}\n"
+                f"请下棋并解释，返回JSON格式。"
+            )
+
+            messages = [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_message},
+            ]
+
+            # 记录请求开始时间
+            start_time = time.time()
+
+            logger.info(f"   正在调用 {self.model} API...")
+            logger.info(f"   📤 请求参数:")
+            logger.info(f"      - Model: {self.model}")
+            logger.info(f"      - Temperature: 0.7")
+            logger.info(f"      - Timeout: {self.timeout}秒")
+            logger.info(f"      - Messages: {len(messages)}条")
+            logger.info(f"      - System Prompt长度: {len(SYSTEM_PROMPT)}字符")
+            logger.info(f"      - User Message长度: {len(user_message)}字符")
+            logger.info(f"      - Base URL: {os.getenv('OPENAI_BASE_URL')}")
+
+            print(f"   正在调用 {self.model} API...")
+            print(f"   📤 请求参数: Model={self.model}, Timeout={self.timeout}秒")
+
             response = self.client.chat.completions.create(
                 model=self.model,
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {
-                        "role": "user",
-                        "content": f"当前棋局（FEN）: {board_fen}\n"
-                        f"当前执子: {'红方' if game_state.current_player == 'red' else '黑方'}\n"
-                        f"请下棋并解释，返回JSON格式。",
-                    },
-                ],
+                messages=messages,
                 temperature=0.7,
                 response_format={"type": "json_object"},
                 timeout=self.timeout,
             )
+
+            # 计算请求耗时
+            elapsed_time = time.time() - start_time
+
+            # 记录响应信息
+            logger.info(f"   📥 API响应成功:")
+            logger.info(f"      - 响应时间: {elapsed_time:.2f}秒")
+            logger.info(f"      - Choices数量: {len(response.choices)}")
+
+            if hasattr(response, "usage") and response.usage:
+                logger.info(f"      - Token使用:")
+                logger.info(f"        * Prompt Tokens: {response.usage.prompt_tokens}")
+                logger.info(f"        * Completion Tokens: {response.usage.completion_tokens}")
+                logger.info(f"        * Total Tokens: {response.usage.total_tokens}")
 
             content = response.choices[0].message.content
             if not content:
                 raise Exception("AI返回空内容")
 
             logger.info(f"   AI原始响应: {content}")
+            print(f"   ✅ API响应时间: {elapsed_time:.2f}秒")
+            print(
+                f"   📊 Token使用: {response.usage.total_tokens if hasattr(response, 'usage') and response.usage else 'N/A'}"
+            )
 
             result = json.loads(content)
             logger.info(f"✅ AI决定走: {result['move']}")
@@ -90,9 +128,21 @@ class AIEngine:
             return {"move": move, "explanation": result["explanation"], "game_state": new_state}
 
         except Exception as e:
-            logger.exception(f"❌ AI生成棋步失败: {str(e)}")
+            elapsed_time = time.time() - start_time if "start_time" in locals() else 0
+
+            logger.error(f"   ❌ API调用失败:")
+            logger.error(f"      - 错误类型: {type(e).__name__}")
+            logger.error(f"      - 错误信息: {str(e)}")
+            logger.error(f"      - 已用时间: {elapsed_time:.2f}秒")
+
+            # 如果是超时错误
+            if "timeout" in str(e).lower() or "timed out" in str(e).lower():
+                logger.error(f"      - 建议: 增加 THINKING_TIMEOUT 环境变量值")
+
             print(f"❌ AI生成棋步失败: {str(e)}")
             print(f"   错误类型: {type(e).__name__}")
+            print(f"   已用时间: {elapsed_time:.2f}秒")
+
             raise Exception(f"AI生成棋步失败: {str(e)}")
 
     def _board_to_fen(self, board: list) -> str:
