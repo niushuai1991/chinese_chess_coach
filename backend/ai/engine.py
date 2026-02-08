@@ -18,11 +18,15 @@ class AIEngine:
 
     def __init__(self, game_manager=None) -> None:
         self.client = OpenAI(
-            api_key=os.getenv("OPENAI_API_KEY"), base_url=os.getenv("OPENAI_BASE_URL")
+            api_key=os.getenv("OPENAI_API_KEY"),
+            base_url=os.getenv("OPENAI_BASE_URL"),
+            max_retries=0,  # 禁用自动重试，避免超时后多次重试
         )
         self.model = os.getenv("MODEL_NAME", "gpt-4")
         self.game_manager = game_manager or GameManager()
         self.timeout = int(os.getenv("THINKING_TIMEOUT", "30"))
+
+        logger.info(f"AI引擎初始化: Model={self.model}, Timeout={self.timeout}秒, MaxRetries=0")
 
     async def make_move_with_explanation(self, session_id: str) -> dict:
         """AI下棋并返回解释
@@ -122,10 +126,23 @@ class AIEngine:
             print(f"{'=' * 60}\n")
 
             # 执行AI的棋步
-            move = self._parse_ai_move(result["move"])
-            new_state = self.game_manager.make_move(session_id, move["from_pos"], move["to_pos"])
+            parsed_move = self._parse_ai_move(result["move"])
+            new_state = self.game_manager.make_move(
+                session_id, parsed_move["from_pos"], parsed_move["to_pos"]
+            )
 
-            return {"move": move, "explanation": result["explanation"], "game_state": new_state}
+            # 从游戏状态中获取完整的Move对象
+            complete_move = new_state.move_history[-1] if new_state.move_history else None
+
+            logger.info(
+                f"   返回的 Move 对象包含: {complete_move.dict() if complete_move else None}"
+            )
+
+            return {
+                "move": complete_move,
+                "explanation": result["explanation"],
+                "game_state": new_state,
+            }
 
         except Exception as e:
             elapsed_time = time.time() - start_time if "start_time" in locals() else 0
