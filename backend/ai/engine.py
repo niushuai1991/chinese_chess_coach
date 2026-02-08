@@ -80,9 +80,18 @@ class AIEngine:
             logger.info(f"      - Temperature: 0.7")
             logger.info(f"      - Timeout: {self.timeout}秒")
             logger.info(f"      - Messages: {len(messages)}条")
-            logger.info(f"      - System Prompt长度: {len(SYSTEM_PROMPT)}字符")
-            logger.info(f"      - User Message长度: {len(user_message)}字符")
             logger.info(f"      - Base URL: {os.getenv('OPENAI_BASE_URL')}")
+
+            # 输出完整的请求体
+            logger.info(f"   📋 请求体详情:")
+            for i, msg in enumerate(messages):
+                role = msg.get("role", "unknown")
+                content = msg.get("content", "")
+                # 截断过长的内容用于日志
+                content_preview = content[:200] + "..." if len(content) > 200 else content
+                logger.info(f"      Message[{i}] - {role.upper()}:")
+                logger.info(f"        {content_preview}")
+                logger.info(f"        完整长度: {len(content)}字符")
 
             print(f"   正在调用 {self.model} API...")
             print(f"   📤 请求参数: Model={self.model}, Timeout={self.timeout}秒")
@@ -101,6 +110,9 @@ class AIEngine:
             # 记录响应信息
             logger.info(f"   📥 API响应成功:")
             logger.info(f"      - 响应时间: {elapsed_time:.2f}秒")
+            logger.info(f"      - HTTP Status: 200 OK")
+            logger.info(f"      - Response ID: {response.id}")
+            logger.info(f"      - Model: {response.model}")
             logger.info(f"      - Choices数量: {len(response.choices)}")
 
             if hasattr(response, "usage") and response.usage:
@@ -113,13 +125,19 @@ class AIEngine:
             if not content:
                 raise Exception("AI返回空内容")
 
-            logger.info(f"   AI原始响应: {content}")
-            print(f"   ✅ API响应时间: {elapsed_time:.2f}秒")
-            print(
-                f"   📊 Token使用: {response.usage.total_tokens if hasattr(response, 'usage') and response.usage else 'N/A'}"
-            )
+            logger.info(f"   📝 完整响应体:")
+            logger.info(f"      - Content: {content}")
+            logger.info(f"      - Content长度: {len(content)}字符")
 
-            result = json.loads(content)
+            # 尝试解析并验证JSON格式
+            try:
+                result = json.loads(content)
+                logger.info(f"   ✅ JSON解析成功:")
+                logger.info(f"      - move字段: {result.get('move')}")
+                logger.info(f"      - explanation字段: {result.get('explanation')[:100]}...")
+            except json.JSONDecodeError as e:
+                logger.error(f"   ❌ JSON解析失败: {e}")
+                raise
             logger.info(f"✅ AI决定走: {result['move']}")
             print(f"✅ AI决定走: {result['move']}")
             print(f"💭 AI解释: {result['explanation']}")
