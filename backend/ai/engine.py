@@ -5,7 +5,7 @@ import logging
 import os
 import time
 
-from openai import OpenAI
+from zhipuai import ZhipuAI
 
 from backend.ai.prompts import SYSTEM_PROMPT
 from backend.game.state import GameManager
@@ -18,16 +18,14 @@ class AIEngine:
     """AI对弈引擎"""
 
     def __init__(self, game_manager=None) -> None:
-        self.client = OpenAI(
-            api_key=os.getenv("OPENAI_API_KEY"),
-            base_url=os.getenv("OPENAI_BASE_URL"),
-            max_retries=0,  # 禁用自动重试，避免超时后多次重试
+        self.client = ZhipuAI(
+            api_key=os.getenv("OPENAI_API_KEY")  # 智谱API key
         )
-        self.model = os.getenv("MODEL_NAME", "gpt-4")
+        self.model = os.getenv("MODEL_NAME", "glm-4")
         self.game_manager = game_manager or GameManager()
         self.timeout = int(os.getenv("THINKING_TIMEOUT", "30"))
 
-        logger.info(f"AI引擎初始化: Model={self.model}, Timeout={self.timeout}秒, MaxRetries=0")
+        logger.info(f"AI引擎初始化: Model={self.model}, Timeout={self.timeout}秒, 使用智谱官方SDK")
 
         # 棋子名称映射
         self._piece_names = {
@@ -133,7 +131,6 @@ class AIEngine:
                 messages=messages,
                 temperature=0.7,
                 response_format={"type": "json_object"},
-                timeout=self.timeout,
             )
 
             # 计算请求耗时
