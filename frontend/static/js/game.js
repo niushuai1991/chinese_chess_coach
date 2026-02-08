@@ -50,6 +50,13 @@ class ChessGame {
             this.updateUI();
             document.getElementById("undoBtn").disabled = true;
 
+            // 初始化解说面板
+            if (this.playerColor === "red") {
+                this.updateExplanation("游戏开始！你执红先行，请点击棋子下棋。");
+            } else {
+                this.updateExplanation("游戏开始！你执黑，AI执红先行，请稍候...");
+            }
+
             // 如果玩家执黑，AI先手
             if (this.playerColor === "black") {
                 this.isPlayerTurn = false;
@@ -134,6 +141,7 @@ class ChessGame {
                 this.updateUI();
 
                 // 更新AI解说面板
+                console.log("AI解说内容:", data.explanation);
                 this.updateExplanation(data.explanation);
 
                 // 添加AI解释到历史
@@ -223,9 +231,13 @@ class ChessGame {
     }
 
     updateExplanation(explanation) {
+        console.log("updateExplanation被调用，内容:", explanation);
         const explanationDiv = document.getElementById("explanation");
         if (explanationDiv) {
-            explanationDiv.textContent = explanation;
+            console.log("找到explanation元素，更新内容");
+            explanationDiv.textContent = explanation || "等待AI分析...";
+        } else {
+            console.error("未找到explanation元素！");
         }
     }
 
