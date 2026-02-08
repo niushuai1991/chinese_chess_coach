@@ -131,6 +131,7 @@ class AIEngine:
                 messages=messages,
                 temperature=0.7,
                 response_format={"type": "json_object"},
+                thinking={"type": "disabled"},  # 显式禁用思考模式，优化响应速度
             )
 
             # 计算请求耗时
