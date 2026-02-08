@@ -9,6 +9,7 @@ from openai import OpenAI
 
 from backend.ai.prompts import SYSTEM_PROMPT
 from backend.game.state import GameManager
+from backend.models.schemas import Piece, PieceType, PlayerColor
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,24 @@ class AIEngine:
         self.timeout = int(os.getenv("THINKING_TIMEOUT", "30"))
 
         logger.info(f"AI引擎初始化: Model={self.model}, Timeout={self.timeout}秒, MaxRetries=0")
+
+        # 棋子名称映射
+        self._piece_names = {
+            (PieceType.KING, PlayerColor.BLACK): "将",
+            (PieceType.KING, PlayerColor.RED): "帅",
+            (PieceType.ADVISOR, PlayerColor.BLACK): "士",
+            (PieceType.ADVISOR, PlayerColor.RED): "仕",
+            (PieceType.ELEPHANT, PlayerColor.BLACK): "象",
+            (PieceType.ELEPHANT, PlayerColor.RED): "相",
+            (PieceType.HORSE, PlayerColor.BLACK): "马",
+            (PieceType.HORSE, PlayerColor.RED): "马",
+            (PieceType.CHARIOT, PlayerColor.BLACK): "车",
+            (PieceType.CHARIOT, PlayerColor.RED): "车",
+            (PieceType.CANNON, PlayerColor.BLACK): "炮",
+            (PieceType.CANNON, PlayerColor.RED): "炮",
+            (PieceType.PAWN, PlayerColor.BLACK): "卒",
+            (PieceType.PAWN, PlayerColor.RED): "兵",
+        }
 
     async def make_move_with_explanation(self, session_id: str) -> dict:
         """AI下棋并返回解释
@@ -51,20 +70,33 @@ class AIEngine:
         # 获取棋盘表示
         board_fen = self._board_to_fen(game_state.board)
 
+        # 获取当前玩家的所有棋子位置
+        pieces_desc = self._get_pieces_description(game_state.board, game_state.current_player)
+
         ai_player = "红方" if game_state.current_player.value == "red" else "黑方"
         logger.info(f"🤖 {ai_player}AI正在思考...")
         print(f"\n{'=' * 60}")
         print(f"🤖 {ai_player}AI正在思考...")
         print(f"   棋盘FEN: {board_fen}")
+        print(f"   当前{ai_player}棋子: {pieces_desc}")
 
         # 调用AI
         try:
             # 构建请求消息
-            user_message = (
-                f"当前棋局（FEN）: {board_fen}\n"
-                f"当前执子: {'红方' if game_state.current_player == 'red' else '黑方'}\n"
-                f"请下棋并解释，返回JSON格式。"
-            )
+            user_message = f"""当前{ai_player}棋子：
+{pieces_desc}
+
+当前棋盘FEN（仅供参考）：{board_fen}
+当前执子: {ai_player}
+
+请从上述列表中选择一个棋子，移动到合法位置。
+
+注意：
+- 炮的初始位置：黑方在第2行，红方在第7行
+- 马的初始位置：黑方在第0行，红方在第9行
+- 象的初始位置：黑方在第0行，红方在第9行
+
+请下棋并解释，返回JSON格式。"""
 
             messages = [
                 {"role": "system", "content": SYSTEM_PROMPT},
@@ -205,6 +237,26 @@ class AIEngine:
             rows.append(row_str)
 
         return "/".join(rows)
+
+    def _get_pieces_description(self, board: list, color: PlayerColor) -> str:
+        """生成棋子位置描述
+
+        Args:
+            board: 棋盘
+            color: 玩家颜色
+
+        Returns:
+            棋子位置描述字符串，如："将(0,4), 车(0,0), 马(0,1)..."
+        """
+        pieces = []
+        for row in range(10):
+            for col in range(9):
+                piece = board[row][col]
+                if piece and piece.color == color:
+                    piece_name = self._piece_names.get((piece.type, piece.color), "棋子")
+                    pieces.append(f"{piece_name}({row},{col})")
+
+        return ", ".join(pieces) if pieces else "无棋子"
 
     def _parse_ai_move(self, move_str: str) -> dict:
         """解析AI返回的棋步
