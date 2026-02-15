@@ -29,10 +29,36 @@ class ChessGame {
             this.playerColor = e.target.value;
         });
 
+        // 难度选择
+        document.getElementById("difficultySelect").addEventListener("change", async (e) => {
+            await this.changeDifficulty(e.target.value);
+        });
+
         // 棋盘点击
         this.board.container.addEventListener("cellClick", (e) => {
             this.handleCellClick(e.detail.row, e.detail.col);
         });
+    }
+
+    async changeDifficulty(difficulty) {
+        try {
+            const response = await fetch("/api/settings/difficulty", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ difficulty: parseInt(difficulty) })
+            });
+
+            const data = await response.json();
+
+            // 更新难度指示器
+            const difficultyNames = { 3: "中等", 4: "困难", 5: "大师" };
+            document.getElementById("difficultyIndicator").textContent = `难度：${difficultyNames[difficulty]}`;
+
+            console.log("难度设置成功:", data);
+        } catch (error) {
+            console.error("设置难度失败:", error);
+            this.showError("设置难度失败");
+        }
     }
 
     async startNewGame() {
