@@ -22,12 +22,18 @@
                     <option value="red">执红先行</option>
                     <option value="black">执黑后行</option>
                 </select>
+                <select id="difficultySelect" class="select">
+                    <option value="3">中等（深度3）</option>
+                    <option value="4">困难（深度4）</option>
+                    <option value="5">大师（深度5）</option>
+                </select>
             </div>
 
             <!-- 游戏状态 -->
             <div class="status-bar">
                 <span id="gameStatus" class="status">准备开始</span>
                 <span id="turnIndicator" class="turn"></span>
+                <span id="difficultyIndicator" class="difficulty">难度：中等</span>
             </div>
 
             <!-- 棋盘 -->
