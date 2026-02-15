@@ -60,6 +60,10 @@ class GameManager:
         if not game:
             raise ValueError("游戏不存在")
 
+        # 检查游戏是否已结束
+        if game.is_checkmate or game.is_stalemate:
+            raise ValueError("游戏已结束，无法继续下棋")
+
         # 验证棋步合法性
         if not self._is_valid_move(game, from_pos, to_pos):
             # 获取起始位置的棋子信息，用于调试
@@ -73,11 +77,6 @@ class GameManager:
 
         # 执行棋步（保存起始棋子和被吃棋子）
         piece = game.board[from_pos.row][from_pos.col]
-        target_piece = (
-            game.board[to_pos.row][to_pos.col]
-            if 0 <= to_pos.row < 10 and 0 <= to_pos.col < 9
-            else None
-        )
         if not piece:
             raise ValueError("起始位置没有棋子")
 
@@ -111,6 +110,16 @@ class GameManager:
             PlayerColor.BLACK if game.current_player == PlayerColor.RED else PlayerColor.RED
         )
 
+        # 检查是否吃掉对方的将/帅（直接胜利）
+        if captured and captured.type == PieceType.KING:
+            game.is_checkmate = True
+            game.is_check = False
+            winner = "红方" if piece.color == PlayerColor.RED else "黑方"
+            loser_piece = self._get_piece_name(captured.type.value, captured.color.value)
+            logger.info(f"🏆 {winner}吃掉{loser_piece}！游戏结束")
+            print(f"🏆 {winner}吃掉{loser_piece}！游戏结束")
+            return game
+
         # 检查将军和将死（检查对手是否被将军）
         opponent = PlayerColor.BLACK if game.current_player == PlayerColor.RED else PlayerColor.RED
         game.is_check = XiangqiRules.is_in_check(game.board, opponent)
@@ -123,11 +132,11 @@ class GameManager:
             f"📊 第{move_count}步完成 | 当前轮到: {'红方' if game.current_player.value == 'red' else '黑方'}"
         )
         if game.is_check:
-            logger.warning(f"⚠️  将军！")
+            logger.warning("⚠️  将军！")
         if game.is_checkmate:
-            logger.error(f"💀 将死！游戏结束")
+            logger.error("💀 将死！游戏结束")
         if game.is_stalemate:
-            logger.info(f"🤝 困毙！和棋")
+            logger.info("🤝 困毙！和棋")
 
         return game
 

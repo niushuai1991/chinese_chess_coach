@@ -98,7 +98,15 @@ class ChessGame {
     }
 
     async handleCellClick(row, col) {
-        if (!this.sessionId || !this.isPlayerTurn) return;
+        if (!this.sessionId) return;
+
+        // 检查游戏是否已结束（提前检查）
+        if (this.gameState.is_checkmate || this.gameState.is_stalemate) {
+            this.showError("游戏已结束，请开始新游戏");
+            return;
+        }
+
+        if (!this.isPlayerTurn) return;
 
         const selected = this.board.selectedCell;
 
@@ -123,6 +131,12 @@ class ChessGame {
                     this.board.clearValidMoves();
                     this.updateUI();
                     document.getElementById("undoBtn").disabled = false;
+
+                    // 检查游戏是否结束
+                    if (this.gameState.is_checkmate || this.gameState.is_stalemate) {
+                        // 游戏结束，AI不再走棋
+                        return;
+                    }
 
                     // 显示玩家下棋提示
                     this.updateExplanation("你已下棋，正在等待AI回应...");
@@ -153,6 +167,11 @@ class ChessGame {
     async makeAIMove() {
         if (!this.sessionId) return;
 
+        // 检查游戏是否已结束
+        if (this.gameState.is_checkmate || this.gameState.is_stalemate) {
+            return; // 游戏已结束，AI不再走棋
+        }
+
         try {
             const response = await fetch("/api/ai/move", {
                 method: "POST",
@@ -166,6 +185,12 @@ class ChessGame {
                 this.gameState = data.game_state;
                 this.updateUI();
 
+                // 检查游戏是否结束
+                if (this.gameState.is_checkmate || this.gameState.is_stalemate) {
+                    // 游戏结束，玩家无法继续走棋
+                    return;
+                }
+
                 // 更新AI解说面板
                 console.log("AI解说内容:", data.explanation);
                 this.updateExplanation(data.explanation);
@@ -173,14 +198,8 @@ class ChessGame {
                 // 添加AI解释到历史
                 this.addHistoryItem(data.move, data.explanation);
 
-                // 检查游戏结束
-                if (this.gameState.is_checkmate) {
-                    this.showStatus("将死！游戏结束");
-                } else if (this.gameState.is_stalemate) {
-                    this.showStatus("和棋！");
-                } else {
-                    this.isPlayerTurn = true;
-                }
+                // 继续游戏
+                this.isPlayerTurn = true;
             } else {
                 this.showError(data.error || "AI下棋失败");
                 this.isPlayerTurn = true;
@@ -228,12 +247,20 @@ class ChessGame {
         // 更新状态
         if (this.gameState.is_checkmate) {
             this.showStatus("将死！");
+            // 禁用棋盘交互
+            this.board.container.style.pointerEvents = "none";
+        } else if (this.gameState.is_stalemate) {
+            this.showStatus("和棋！");
+            // 禁用棋盘交互
+            this.board.container.style.pointerEvents = "none";
         } else if (this.gameState.is_check) {
             this.showStatus("将军！");
+            this.board.container.style.pointerEvents = "auto";
         } else {
             this.showStatus(
                 this.gameState.current_player === "red" ? "红方走棋" : "黑方走棋"
             );
+            this.board.container.style.pointerEvents = "auto";
         }
 
         // 更新回合指示器
