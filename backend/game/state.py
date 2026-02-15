@@ -71,8 +71,13 @@ class GameManager:
                 f"当前玩家: {game.current_player.value}"
             )
 
-        # 执行棋步
+        # 执行棋步（保存起始棋子和被吃棋子）
         piece = game.board[from_pos.row][from_pos.col]
+        target_piece = (
+            game.board[to_pos.row][to_pos.col]
+            if 0 <= to_pos.row < 10 and 0 <= to_pos.col < 9
+            else None
+        )
         if not piece:
             raise ValueError("起始位置没有棋子")
 

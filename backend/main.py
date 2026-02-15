@@ -12,7 +12,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from backend.api import ai, game
+from backend.api import ai, game, settings
 
 # 配置日志
 os.makedirs("logs", exist_ok=True)
@@ -42,6 +42,7 @@ app.add_middleware(
 # 注册路由
 app.include_router(game.router, prefix="/api/game", tags=["game"])
 app.include_router(ai.router, prefix="/api/ai", tags=["ai"])
+app.include_router(settings.router, tags=["settings"])
 
 # 静态文件服务
 frontend_path = os.path.join(os.path.dirname(__file__), "../frontend")
