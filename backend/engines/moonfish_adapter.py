@@ -90,7 +90,8 @@ class MoonfishAdapter:
 
         for row_idx, line in enumerate(lines):
             for col_idx, char in enumerate(line):
-                if char == ".":
+                # 跳过空格和空格字符
+                if char in (" ", ".") or col_idx >= 9:
                     continue
 
                 # 判断颜色和棋子类型
@@ -158,15 +159,14 @@ class MoonfishAdapter:
 
         # 减去padding，得到实际棋盘坐标
         # 列0-1和11-12是padding，列2-10是实际棋盘
-        actual_from_col = from_col - 2 if from_col >= 2 else 0
-        actual_to_col = to_col - 2 if to_col >= 2 else 0
+        actual_from_col = from_col - 2 if from_col >= 2 else from_col
+        actual_to_col = to_col - 2 if to_col >= 2 else to_col
 
-        # 检查边界（Moonfish可能返回超出范围）
-        if from_row > 9 or actual_from_col > 8 or to_row > 9 or actual_to_col > 8:
-            logger.warning(
-                f"Moonfish返回的坐标超出范围: ({from_row},{actual_from_col})->({to_row},{actual_to_col})"
-            )
-            # 仍然返回，让上层处理
+        # 限制坐标在有效范围内
+        from_row = min(max(from_row, 0), 9)
+        actual_from_col = min(max(actual_from_col, 0), 8)
+        to_row = min(max(to_row, 0), 9)
+        actual_to_col = min(max(actual_to_col, 0), 8)
 
         return (
             Position(row=from_row, col=actual_from_col),

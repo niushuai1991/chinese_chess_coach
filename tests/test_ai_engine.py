@@ -1,11 +1,19 @@
 """测试AI引擎功能"""
 
+import sys
 import os
 import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, MagicMock
 
 from backend.game.state import GameManager
 from backend.models.schemas import PlayerColor, Position
+
+
+@pytest.fixture(autouse=True)
+def mock_moonfish():
+    """Mock moonfish 模块"""
+    with patch.dict(sys.modules, {"moonfish": MagicMock()}):
+        yield
 
 
 class TestAIEngine:

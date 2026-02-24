@@ -30,48 +30,48 @@ def test_board_to_moonfish_initial():
 
     # 黑方棋子（第0-4行）
     # 车马象士将士象马车
-    board[0][0] = Piece(PieceType.CHARIOT, PlayerColor.BLACK)
-    board[0][1] = Piece(PieceType.HORSE, PlayerColor.BLACK)
-    board[0][2] = Piece(PieceType.ELEPHANT, PlayerColor.BLACK)
-    board[0][3] = Piece(PieceType.ADVISOR, PlayerColor.BLACK)
-    board[0][4] = Piece(PieceType.KING, PlayerColor.BLACK)
-    board[0][5] = Piece(PieceType.ADVISOR, PlayerColor.BLACK)
-    board[0][6] = Piece(PieceType.ELEPHANT, PlayerColor.BLACK)
-    board[0][7] = Piece(PieceType.HORSE, PlayerColor.BLACK)
-    board[0][8] = Piece(PieceType.CHARIOT, PlayerColor.BLACK)
+    board[0][0] = Piece(type=PieceType.CHARIOT, color=PlayerColor.BLACK)
+    board[0][1] = Piece(type=PieceType.HORSE, color=PlayerColor.BLACK)
+    board[0][2] = Piece(type=PieceType.ELEPHANT, color=PlayerColor.BLACK)
+    board[0][3] = Piece(type=PieceType.ADVISOR, color=PlayerColor.BLACK)
+    board[0][4] = Piece(type=PieceType.KING, color=PlayerColor.BLACK)
+    board[0][5] = Piece(type=PieceType.ADVISOR, color=PlayerColor.BLACK)
+    board[0][6] = Piece(type=PieceType.ELEPHANT, color=PlayerColor.BLACK)
+    board[0][7] = Piece(type=PieceType.HORSE, color=PlayerColor.BLACK)
+    board[0][8] = Piece(type=PieceType.CHARIOT, color=PlayerColor.BLACK)
 
     # 炮
-    board[2][1] = Piece(PieceType.CANNON, PlayerColor.BLACK)
-    board[2][7] = Piece(PieceType.CANNON, PlayerColor.BLACK)
+    board[2][1] = Piece(type=PieceType.CANNON, color=PlayerColor.BLACK)
+    board[2][7] = Piece(type=PieceType.CANNON, color=PlayerColor.BLACK)
 
     # 卒
-    board[3][0] = Piece(PieceType.PAWN, PlayerColor.BLACK)
-    board[3][2] = Piece(PieceType.PAWN, PlayerColor.BLACK)
-    board[3][4] = Piece(PieceType.PAWN, PlayerColor.BLACK)
-    board[3][6] = Piece(PieceType.PAWN, PlayerColor.BLACK)
-    board[3][8] = Piece(PieceType.PAWN, PlayerColor.BLACK)
+    board[3][0] = Piece(type=PieceType.PAWN, color=PlayerColor.BLACK)
+    board[3][2] = Piece(type=PieceType.PAWN, color=PlayerColor.BLACK)
+    board[3][4] = Piece(type=PieceType.PAWN, color=PlayerColor.BLACK)
+    board[3][6] = Piece(type=PieceType.PAWN, color=PlayerColor.BLACK)
+    board[3][8] = Piece(type=PieceType.PAWN, color=PlayerColor.BLACK)
 
     # 红方棋子（第6-9行）
-    board[9][0] = Piece(PieceType.CHARIOT, PlayerColor.RED)
-    board[9][1] = Piece(PieceType.HORSE, PlayerColor.RED)
-    board[9][2] = Piece(PieceType.ELEPHANT, PlayerColor.RED)
-    board[9][3] = Piece(PieceType.ADVISOR, PlayerColor.RED)
-    board[9][4] = Piece(PieceType.KING, PlayerColor.RED)
-    board[9][5] = Piece(PieceType.ADVISOR, PlayerColor.RED)
-    board[9][6] = Piece(PieceType.ELEPHANT, PlayerColor.RED)
-    board[9][7] = Piece(PieceType.HORSE, PlayerColor.RED)
-    board[9][8] = Piece(PieceType.CHARIOT, PlayerColor.RED)
+    board[9][0] = Piece(type=PieceType.CHARIOT, color=PlayerColor.RED)
+    board[9][1] = Piece(type=PieceType.HORSE, color=PlayerColor.RED)
+    board[9][2] = Piece(type=PieceType.ELEPHANT, color=PlayerColor.RED)
+    board[9][3] = Piece(type=PieceType.ADVISOR, color=PlayerColor.RED)
+    board[9][4] = Piece(type=PieceType.KING, color=PlayerColor.RED)
+    board[9][5] = Piece(type=PieceType.ADVISOR, color=PlayerColor.RED)
+    board[9][6] = Piece(type=PieceType.ELEPHANT, color=PlayerColor.RED)
+    board[9][7] = Piece(type=PieceType.HORSE, color=PlayerColor.RED)
+    board[9][8] = Piece(type=PieceType.CHARIOT, color=PlayerColor.RED)
 
     # 炮
-    board[7][1] = Piece(PieceType.CANNON, PlayerColor.RED)
-    board[7][7] = Piece(PieceType.CANNON, PlayerColor.RED)
+    board[7][1] = Piece(type=PieceType.CANNON, color=PlayerColor.RED)
+    board[7][7] = Piece(type=PieceType.CANNON, color=PlayerColor.RED)
 
     # 兵
-    board[6][0] = Piece(PieceType.PAWN, PlayerColor.RED)
-    board[6][2] = Piece(PieceType.PAWN, PlayerColor.RED)
-    board[6][4] = Piece(PieceType.PAWN, PlayerColor.RED)
-    board[6][6] = Piece(PieceType.PAWN, PlayerColor.RED)
-    board[6][8] = Piece(PieceType.PAWN, PlayerColor.RED)
+    board[6][0] = Piece(type=PieceType.PAWN, color=PlayerColor.RED)
+    board[6][2] = Piece(type=PieceType.PAWN, color=PlayerColor.RED)
+    board[6][4] = Piece(type=PieceType.PAWN, color=PlayerColor.RED)
+    board[6][6] = Piece(type=PieceType.PAWN, color=PlayerColor.RED)
+    board[6][8] = Piece(type=PieceType.PAWN, color=PlayerColor.RED)
 
     moonfish_str = MoonfishAdapter.board_to_moonfish(board)
     lines = moonfish_str.split("\n")
@@ -90,15 +90,14 @@ def test_board_to_moonfish_initial():
 def test_moonfish_to_board():
     """测试Moonfish字符串转回棋盘"""
     moonfish_board = """rnbakabnr
- .......
- .c.....c.
- p.p.p.p.p
- .......
- .......
- P.P.P.P.P
- .C.....C.
- RNBAKABNR
-"""
+.......
+.c.....c.
+p.p.p.p.p
+.......
+.......
+P.P.P.P.P
+.C.....C.
+RNBAKABNR"""
 
     board = MoonfishAdapter.moonfish_to_board(moonfish_board)
 
@@ -120,7 +119,7 @@ def test_move_to_moonfish():
     # 注意：输入使用0-based行号
     from_pos = Position(row=1, col=4)  # e2
     to_pos = Position(row=3, col=4)  # e4
-    piece = Piece(PieceType.PAWN, PlayerColor.RED)
+    piece = Piece(type=PieceType.PAWN, color=PlayerColor.RED)
 
     ucci_move = MoonfishAdapter.move_to_moonfish(from_pos, to_pos, piece)
 
@@ -132,9 +131,10 @@ def test_move_to_moonfish():
 
 def test_moonfish_to_move():
     """测试Moonfish索引转项目坐标"""
-    # Moonfish索引：13×0 + 4 = 58（第4行第4列，0-based）
-    # Moonfish索引：13×3 + 4 = 85（第6行第4列，0-based）
-    from_idx, to_idx = 58, 85
+    # Moonfish索引计算：13*row + (col+2)，其中col+2是因为有2列padding
+    # from: row=4, col=4 => 13*4 + 6 = 58
+    # to: row=6, col=4 => 13*6 + 6 = 84
+    from_idx, to_idx = 58, 84
 
     from_pos, to_pos = MoonfishAdapter.moonfish_to_move((from_idx, to_idx))
 
