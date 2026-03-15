@@ -410,7 +410,7 @@ class AIEngine:
             # 执行AI的棋步
             parsed_move = self._parse_ai_move(result["move"])
             logger.info(
-                f"   尝试执行棋步: {parsed_move['from_pos'].dict()} -> {parsed_move['to_pos'].dict()}"
+                f"   尝试执行棋步: {parsed_move['from_pos'].model_dump()} -> {parsed_move['to_pos'].model_dump()}"
             )
             new_state = self.game_manager.make_move(
                 session_id, parsed_move["from_pos"], parsed_move["to_pos"]
@@ -420,7 +420,7 @@ class AIEngine:
             complete_move = new_state.move_history[-1] if new_state.move_history else None
 
             logger.info(
-                f"   返回的 Move 对象包含: {complete_move.dict() if complete_move else None}"
+                f"   返回的 Move 对象包含: {complete_move.model_dump() if complete_move else None}"
             )
 
             # 打印详细的走棋信息
