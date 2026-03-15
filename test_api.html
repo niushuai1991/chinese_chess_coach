@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API测试</title>
+</head>
+<body>
+    <h1>API测试</h1>
+    <button onclick="testCreateGame()">创建游戏</button>
+    <button onclick="testAIMove()">AI下棋</button>
+    <pre id="result"></pre>
+
+    <script>
+        let sessionId = null;
+
+        async function testCreateGame() {
+            try {
+                const response = await fetch('/api/game/new', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ player_color: 'red' })
+                });
+                const data = await response.json();
+                sessionId = data.session_id;
+                document.getElementById('result').textContent = '✓ 游戏创建成功: ' + sessionId;
+            } catch (error) {
+                document.getElementById('result').textContent = '✗ 创建失败: ' + error;
+            }
+        }
+
+        async function testAIMove() {
+            if (!sessionId) {
+                alert('请先创建游戏');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/ai/move', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sessionId })
+                });
+                const data = await response.json();
+                document.getElementById('result').textContent = '✓ AI下棋成功: ' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('result').textContent = '✗ AI下棋失败: ' + error;
+                console.error('详细错误:', error);
+            }
+        }
+    </script>
+</body>
+</html>
